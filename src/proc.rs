@@ -6,7 +6,7 @@ pub struct ProcessRecord {
     pid: i32,
     name: String,
     uid: u32,
-    vmrss: Option<u64>,
+    vmrss_kb: Option<u64>,
     user: String,
     num_threads: i64,
     cmdline: Option<String>,
@@ -29,7 +29,7 @@ impl ProcessRecord {
             pid,
             name: status.name,
             uid: status.egid,
-            vmrss: status.vmrss,
+            vmrss_kb: status.vmrss,
             user: uid_to_user(status.egid),
             num_threads: stat.num_threads,
             cmdline,
@@ -50,7 +50,7 @@ fn uid_to_user_inner(uid: u32) -> Result<String> {
 
 pub fn insert_process(connection: &sqlite::Connection) -> Result<()> {
     connection
-        .execute("CREATE TABLE processes (pid INT, name TEXT, uid INT, vmrss INT, user TEXT, num_threads INT, cmdline TEXT)")?;
+        .execute("CREATE TABLE processes (pid INT, name TEXT, uid INT, vmrss_kb INT, user TEXT, num_threads INT, cmdline TEXT)")?;
 
     // get all processes using procfs
     // this didn't include other threads, only the main threads
@@ -62,16 +62,22 @@ pub fn insert_process(connection: &sqlite::Connection) -> Result<()> {
         match ProcessRecord::try_new(p) {
             Ok(record) => {
                 let query = format!(
-                    "INSERT INTO processes (pid, name, uid, vmrss, user, num_threads, cmdline) VALUES ({}, '{}', {}, {}, '{}', {}, '{}')",
+                    "INSERT INTO processes (pid, name, uid, vmrss_kb, user, num_threads, cmdline) VALUES ({}, '{}', {}, {}, '{}', {}, '{}')",
                     record.pid,
                     record.name,
                     record.uid,
-                    record.vmrss.unwrap_or(0),
+                    record.vmrss_kb.unwrap_or(0),
                     record.user,
                     record.num_threads,
                     record.cmdline.unwrap_or("".to_string())
                 );
-                connection.execute(query)?;
+                let result = connection.execute(query.clone());
+                match result {
+                    Ok(_) => (),
+                    Err(e) => {
+                        anyhow::bail!("SQL insert Error: {} \n Query: {}", e, query);
+                    }
+                }
             }
             Err(_) => continue,
         }

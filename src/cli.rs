@@ -18,7 +18,7 @@ pub fn get_query(sql_query: Option<String>, preset: Option<Preset>) -> Result<St
     }
 
     if preset.is_none() && sql_query.is_none() {
-        let query = "SELECT * FROM processes ORDER BY vmrss DESC LIMIT 10".to_string();
+        let query = "SELECT * FROM processes ORDER BY vmrss_kb DESC LIMIT 10".to_string();
         println!("Using default query: {}", query);
         return Ok(query);
     }
@@ -30,14 +30,15 @@ pub fn get_query(sql_query: Option<String>, preset: Option<Preset>) -> Result<St
     if let Some(p) = preset {
         let query = match p {
             Preset::Schema => "PRAGMA table_info(processes);",
-            Preset::Top10Mem => "SELECT * FROM processes ORDER BY vmrss DESC LIMIT 10",
+            Preset::Top10Mem => "SELECT * FROM processes ORDER BY vmrss_kb DESC LIMIT 10",
             Preset::TopUserMem => {
-                "SELECT user, SUM(vmrss) FROM processes GROUP BY user ORDER BY SUM(vmrss) DESC"
+                "SELECT user, SUM(vmrss_kb) FROM processes GROUP BY user ORDER BY SUM(vmrss_kb) DESC"
             }
             Preset::TopRootMem => {
-                "SELECT * FROM processes WHERE user=\"root\" ORDER BY vmrss DESC LIMIT 10"
+                "SELECT * FROM processes WHERE user=\"root\" ORDER BY vmrss_kb DESC LIMIT 10"
             }
         };
+        println!("Using preset query: {}", query);
         Ok(query.to_string())
     } else {
         anyhow::bail!("No query found");
