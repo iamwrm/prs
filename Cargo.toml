@@ -1,6 +1,16 @@
+[package]
+name = "prs"
+version = "0.1.0"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[workspace]
+[dependencies]
+sqlite = "0.30.4"
 
-members = ["sqlite_interface", "rusqlite_interface","prs"]
+anyhow = "1.0.70"
+clap = "4.1.13"
+
+procfs = { version = "0.15.1", features = ["serde1"] }
+
+serde = "1.0.158"
