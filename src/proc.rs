@@ -95,7 +95,7 @@ fn cmdline_encode(cmdline: &str) -> String {
     let mut encoded = String::new();
     for c in cmdline.chars() {
         if c == '\'' {
-            encoded.push_str(r#"\'"#);
+            encoded.push_str("''");
         } else {
             encoded.push(c);
         }
@@ -111,6 +111,6 @@ mod test {
     fn test_encode() {
         let s = "hello world '123123'";
         let encoded = cmdline_encode(s);
-        assert_eq!(encoded, "hello world \\'123123\\'");
+        assert_eq!(encoded, "hello world ''123123''");
     }
 }
