@@ -20,7 +20,7 @@ impl ProcessRecord {
         if status.is_none() || stat.is_none() {
             anyhow::bail!("status or stat is none")
         }
-        let _stat = stat.unwrap();
+        let stat = stat.unwrap();
         let status = status.unwrap();
 
         Ok(Self {
@@ -29,7 +29,7 @@ impl ProcessRecord {
             uid: status.egid,
             vmrss: status.vmrss,
             user: uid_to_user(status.egid),
-            num_threads: _stat.num_threads,
+            num_threads: stat.num_threads,
         })
     }
 }
@@ -45,32 +45,31 @@ fn uid_to_user_inner(uid: u32) -> Result<String> {
 }
 
 pub fn insert_process(connection: &sqlite::Connection) -> Result<()> {
-    // get all processes using procfs
-    // this didn't include other threads, only the main threads
-    let it = procfs::process::all_processes()?;
-    let processes = it.map(|p| p.unwrap()).collect::<Vec<_>>();
     connection
         .execute("CREATE TABLE processes (pid INT, name TEXT, uid INT, vmrss INT, user TEXT, num_threads INT)")?;
 
+    // get all processes using procfs
+    // this didn't include other threads, only the main threads
+    let processes = procfs::process::all_processes()?
+        .map(|p| p.unwrap())
+        .collect::<Vec<_>>();
+
     for p in processes {
-        let pid = p.pid();
-        let stat = p.stat().ok();
-        let status = p.status().ok();
-        let record = ProcessRecord::try_new(pid, stat, status);
-        if record.is_err() {
-            continue;
+        match ProcessRecord::try_new(p.pid(), p.stat().ok(), p.status().ok()) {
+            Ok(record) => {
+                let query = format!(
+                    "INSERT INTO processes (pid, name, uid, vmrss, user, num_threads) VALUES ({}, '{}', {}, {}, '{}', {})",
+                    record.pid,
+                    record.name,
+                    record.uid,
+                    record.vmrss.unwrap_or(0),
+                    record.user,
+                    record.num_threads
+                );
+                connection.execute(query)?;
+            }
+            Err(_) => continue,
         }
-        let record = record.unwrap();
-        let query = format!(
-            "INSERT INTO processes (pid, name, uid, vmrss, user, num_threads) VALUES ({}, '{}', {}, {}, '{}', {})",
-            record.pid,
-            record.name,
-            record.uid,
-            record.vmrss.unwrap_or(0),
-            record.user,
-            record.num_threads
-        );
-        connection.execute(query)?;
     }
 
     Ok(())

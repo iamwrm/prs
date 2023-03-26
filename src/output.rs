@@ -1,19 +1,5 @@
 use anyhow::Result;
 
-pub fn print_query_result(connection: &sqlite::Connection, query: &str) -> Result<()> {
-    let output_header = format!("Query: {}", query);
-    println!("{}", output_header);
-    println!("----------------");
-
-    let mut stmt = connection.prepare(query)?;
-
-    let mut cursor = stmt.iter();
-
-    print_cursor(&mut cursor)?;
-
-    Ok(())
-}
-
 struct Value {
     value: sqlite::Value,
 }
@@ -34,6 +20,20 @@ impl From<sqlite::Value> for Value {
     fn from(value: sqlite::Value) -> Self {
         Value { value }
     }
+}
+
+pub fn print_query_result(connection: &sqlite::Connection, query: &str) -> Result<()> {
+    let output_header = format!("Query: {}", query);
+    println!("{}", output_header);
+    println!("----------------");
+
+    let mut stmt = connection.prepare(query)?;
+
+    let mut cursor = stmt.iter();
+
+    print_cursor(&mut cursor)?;
+
+    Ok(())
 }
 
 fn print_cursor(cursor: &mut sqlite::Cursor) -> Result<()> {
