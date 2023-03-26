@@ -17,7 +17,12 @@ impl ProcessRecord {
         let pid = p.pid();
         let status = p.status().ok();
         let stat = p.stat().ok();
-        let cmdline = p.cmdline().ok().map(|c| c.join(" "));
+
+        let cmdline = p
+            .cmdline()
+            .ok()
+            .map(|c| c.join(" "))
+            .map(|c| cmdline_encode(&c));
 
         if status.is_none() || stat.is_none() {
             anyhow::bail!("status or stat is none")
@@ -84,4 +89,28 @@ pub fn insert_process(connection: &sqlite::Connection) -> Result<()> {
     }
 
     Ok(())
+}
+
+fn cmdline_encode(cmdline: &str) -> String {
+    let mut encoded = String::new();
+    for c in cmdline.chars() {
+        if c == '\'' {
+            encoded.push_str(r#"\'"#);
+        } else {
+            encoded.push(c);
+        }
+    }
+    encoded
+}
+
+#[cfg(test)]
+mod test {
+    use crate::proc::cmdline_encode;
+
+    #[test]
+    fn test_encode() {
+        let s = "hello world '123123'";
+        let encoded = cmdline_encode(s);
+        assert_eq!(encoded, "hello world \\'123123\\'");
+    }
 }
