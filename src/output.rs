@@ -1,13 +1,10 @@
 use anyhow::Result;
 
-pub fn print_schema(connection: &sqlite::Connection) -> Result<()> {
-    let query = "PRAGMA table_info(processes);";
-    print_rows(connection, query)?;
+pub fn print_query_result(connection: &sqlite::Connection, query: &str) -> Result<()> {
+    let output_header = format!("Query: {}", query);
+    println!("----------------");
+    println!("{}", output_header);
 
-    Ok(())
-}
-
-pub fn print_rows(connection: &sqlite::Connection, query: &str) -> Result<()> {
     let mut stmt = connection.prepare(query)?;
 
     let mut cursor = stmt.iter();

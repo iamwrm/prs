@@ -9,7 +9,7 @@ edition = "2021"
 sqlite = "0.30.4"
 
 anyhow = "1.0.70"
-clap = "4.1.13"
+clap = { version = "4.1.13", features = ["derive"] }
 
 procfs = { version = "0.15.1", features = ["serde1"] }
 
