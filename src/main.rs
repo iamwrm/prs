@@ -1,7 +1,7 @@
 mod output;
 mod proc;
 
-use anyhow::Result;
+use anyhow::{Ok, Result};
 use clap::Parser;
 
 use output::print_query_result;
@@ -15,6 +15,7 @@ struct Args {
     #[arg(short, long)]
     sql: Option<String>,
 
+    /// preset queries
     #[arg(short, long, value_enum)]
     preset: Option<Preset>,
 }
@@ -23,14 +24,10 @@ struct Args {
 enum Preset {
     Schema,
     Top10Mem,
+    TopUserMem,
 }
 
-fn main() -> Result<()> {
-    let args = Args::parse();
-
-    let sql_query = args.sql;
-    let preset = args.preset;
-
+fn get_query(sql_query: Option<String>, preset: Option<Preset>) -> Result<String> {
     let mut query = "SELECT * FROM processes ORDER BY vmrss DESC LIMIT 10".to_string();
 
     if preset.is_some() && sql_query.is_some() {
@@ -40,26 +37,37 @@ fn main() -> Result<()> {
         println!("using default query: {}", query);
     }
 
-    match sql_query {
-        Some(q) => query = q.to_string(),
-        None => {}
+    if let Some(q) = sql_query {
+        query = q
     }
 
-    match preset {
-        Some(p) => match p {
+    if let Some(p) = preset {
+        match p {
             Preset::Schema => query = "PRAGMA table_info(processes);".to_string(),
             Preset::Top10Mem => {
                 query = "SELECT * FROM processes ORDER BY vmrss DESC LIMIT 10".to_string()
             }
-        },
-        None => {}
+            Preset::TopUserMem => {
+                query =
+                    "SELECT user, SUM(vmrss) FROM processes GROUP BY user ORDER BY SUM(vmrss) DESC"
+                        .to_string()
+            }
+        }
     }
+    Ok(query)
+}
+
+fn main() -> Result<()> {
+    let args = Args::parse();
+
+    let sql_query = args.sql;
+    let preset = args.preset;
+
+    let query = get_query(sql_query, preset)?;
 
     let connection = sqlite::open(":memory:").unwrap();
 
     insert_process(&connection)?;
-
-    // print_schema(&connection)?;
 
     print_query_result(&connection, &query)?;
 

@@ -46,11 +46,10 @@ fn print_cursor(cursor: &mut sqlite::Cursor) -> Result<()> {
     for i in cursor {
         let i = i.unwrap();
         for j in 0..n {
-            let name = i[j].clone();
-            let name: Value = name.into();
+            let name: Value = i[j].clone().into();
             print!("{}", name);
             if j == n - 1 {
-                println!("");
+                println!();
             } else {
                 print!(", ");
             }
