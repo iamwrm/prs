@@ -15,8 +15,14 @@ struct Args {
     #[arg(short, long)]
     sql: Option<String>,
 
-    #[arg(short, long)]
-    preset: Option<String>,
+    #[arg(short, long, value_enum)]
+    preset: Option<Preset>,
+}
+
+#[derive(clap::ValueEnum, Clone, Debug)]
+enum Preset {
+    Schema,
+    Top10Mem,
 }
 
 fn main() -> Result<()> {
@@ -40,12 +46,11 @@ fn main() -> Result<()> {
     }
 
     match preset {
-        Some(p) => match p.as_str() {
-            "schema" => query = "PRAGMA table_info(processes);".to_string(),
-            "top10_mem" => {
-                query = "SELECT * FROM processes ORDER BY vmrss ASC LIMIT 10".to_string()
+        Some(p) => match p {
+            Preset::Schema => query = "PRAGMA table_info(processes);".to_string(),
+            Preset::Top10Mem => {
+                query = "SELECT * FROM processes ORDER BY vmrss DESC LIMIT 10".to_string()
             }
-            _ => anyhow::bail!("unknown preset"),
         },
         None => {}
     }

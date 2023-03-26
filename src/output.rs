@@ -2,8 +2,8 @@ use anyhow::Result;
 
 pub fn print_query_result(connection: &sqlite::Connection, query: &str) -> Result<()> {
     let output_header = format!("Query: {}", query);
-    println!("----------------");
     println!("{}", output_header);
+    println!("----------------");
 
     let mut stmt = connection.prepare(query)?;
 
@@ -37,20 +37,24 @@ impl From<sqlite::Value> for Value {
 }
 
 fn print_cursor(cursor: &mut sqlite::Cursor) -> Result<()> {
-    let a = cursor.column_names();
+    let column_names = cursor.column_names();
 
-    let n = a.len();
+    let n = column_names.len();
 
-    println!("{}", a.join(", "));
+    println!("{}", column_names.join(", "));
 
     for i in cursor {
         let i = i.unwrap();
         for j in 0..n {
             let name = i[j].clone();
             let name: Value = name.into();
-            print!("{}, ", name);
+            print!("{}", name);
+            if j == n - 1 {
+                println!("");
+            } else {
+                print!(", ");
+            }
         }
-        println!("");
     }
 
     Ok(())
