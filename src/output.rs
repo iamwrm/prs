@@ -41,7 +41,7 @@ fn print_cursor(cursor: &mut sqlite::Cursor) -> Result<()> {
 
     let n = column_names.len();
 
-    println!("{}", column_names.join(", "));
+    println!("{}", column_names.join("\t"));
 
     for i in cursor {
         let i = i.unwrap();
@@ -51,7 +51,7 @@ fn print_cursor(cursor: &mut sqlite::Cursor) -> Result<()> {
             if j == n - 1 {
                 println!();
             } else {
-                print!(", ");
+                print!("\t");
             }
         }
     }

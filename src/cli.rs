@@ -8,6 +8,8 @@ pub enum Preset {
     Top10Mem,
     /// show the top memory users
     TopUserMem,
+    /// show the top 10 memory processes of user root
+    TopRootMem,
 }
 
 pub fn get_query(sql_query: Option<String>, preset: Option<Preset>) -> Result<String> {
@@ -31,6 +33,9 @@ pub fn get_query(sql_query: Option<String>, preset: Option<Preset>) -> Result<St
             Preset::Top10Mem => "SELECT * FROM processes ORDER BY vmrss DESC LIMIT 10",
             Preset::TopUserMem => {
                 "SELECT user, SUM(vmrss) FROM processes GROUP BY user ORDER BY SUM(vmrss) DESC"
+            }
+            Preset::TopRootMem => {
+                "SELECT * FROM processes WHERE user=\"root\" ORDER BY vmrss DESC LIMIT 10"
             }
         };
         Ok(query.to_string())

@@ -9,14 +9,16 @@ pub struct ProcessRecord {
     vmrss: Option<u64>,
     user: String,
     num_threads: i64,
+    cmdline: Option<String>,
 }
 
 impl ProcessRecord {
-    pub fn try_new(
-        pid: i32,
-        stat: Option<procfs::process::Stat>,
-        status: Option<procfs::process::Status>,
-    ) -> Result<Self> {
+    pub fn try_new(p: procfs::process::Process) -> Result<Self> {
+        let pid = p.pid();
+        let status = p.status().ok();
+        let stat = p.stat().ok();
+        let cmdline = p.cmdline().ok().map(|c| c.join(" "));
+
         if status.is_none() || stat.is_none() {
             anyhow::bail!("status or stat is none")
         }
@@ -30,6 +32,7 @@ impl ProcessRecord {
             vmrss: status.vmrss,
             user: uid_to_user(status.egid),
             num_threads: stat.num_threads,
+            cmdline,
         })
     }
 }
@@ -47,7 +50,7 @@ fn uid_to_user_inner(uid: u32) -> Result<String> {
 
 pub fn insert_process(connection: &sqlite::Connection) -> Result<()> {
     connection
-        .execute("CREATE TABLE processes (pid INT, name TEXT, uid INT, vmrss INT, user TEXT, num_threads INT)")?;
+        .execute("CREATE TABLE processes (pid INT, name TEXT, uid INT, vmrss INT, user TEXT, num_threads INT, cmdline TEXT)")?;
 
     // get all processes using procfs
     // this didn't include other threads, only the main threads
@@ -56,16 +59,17 @@ pub fn insert_process(connection: &sqlite::Connection) -> Result<()> {
         .collect::<Vec<_>>();
 
     for p in processes {
-        match ProcessRecord::try_new(p.pid(), p.stat().ok(), p.status().ok()) {
+        match ProcessRecord::try_new(p) {
             Ok(record) => {
                 let query = format!(
-                    "INSERT INTO processes (pid, name, uid, vmrss, user, num_threads) VALUES ({}, '{}', {}, {}, '{}', {})",
+                    "INSERT INTO processes (pid, name, uid, vmrss, user, num_threads, cmdline) VALUES ({}, '{}', {}, {}, '{}', {}, '{}')",
                     record.pid,
                     record.name,
                     record.uid,
                     record.vmrss.unwrap_or(0),
                     record.user,
-                    record.num_threads
+                    record.num_threads,
+                    record.cmdline.unwrap_or("".to_string())
                 );
                 connection.execute(query)?;
             }
