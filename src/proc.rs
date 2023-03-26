@@ -40,7 +40,8 @@ fn uid_to_user(uid: u32) -> String {
 }
 
 fn uid_to_user_inner(uid: u32) -> Result<String> {
-    let output = duct::cmd!("id", "-nu", uid.to_string()).read()?;
+    let cmd_to_run = duct::cmd!("id", "-nu", uid.to_string());
+    let output = cmd_to_run.stderr_capture().read()?;
     Ok(output)
 }
 

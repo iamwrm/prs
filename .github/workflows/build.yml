@@ -35,3 +35,12 @@ jobs:
       - name: Docker build
         run: |
           make docker_build
+          make docker_extract
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          title: "prs binary, for x86_centos7"
+          files: |
+            ./prs

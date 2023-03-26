@@ -13,6 +13,6 @@ clap = { version = "4.1.13", features = ["derive"] }
 
 procfs = { version = "0.15.1", features = ["serde1"] }
 
-serde = "1.0.158"
+# serde = "1.0.158"
 duct = "0.13.6"
 cached = "0.40.0"
