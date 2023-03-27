@@ -2,6 +2,14 @@
 
 ps, but with sql syntax
 
+## TODO:
+
+- Support user cpu, system cpu
+
+- [ ] docker build cache
+    - [ ] user change to non-root
+
+
 
 ## Examples
 
