@@ -66,6 +66,7 @@ jobs:
 
       - name: Docker build
         run: |
+          id 
           sudo chown -R $USER:$USER $HOME/.cargo/
           make docker_build
           make docker_extract
