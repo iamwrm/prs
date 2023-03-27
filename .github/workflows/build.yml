@@ -3,16 +3,15 @@ on: [push]
 name: build
 
 jobs:
-  check:
-    name: Rust project
+  build:
+    name: Rust build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
       - name: check system
         run: |
-          lscpu && free -h 
-
+          lscpu && free -h
 
       - name: Cache cargo registry
         uses: actions/cache@v3
@@ -36,6 +35,28 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
+
+  docker_centos7:
+    name: docker build using centos7
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: check system
+        run: |
+          lscpu && free -h
+
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            server/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: ${{ runner.os }}-cargo-
 
       - name: Docker build
         run: |
