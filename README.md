@@ -6,10 +6,6 @@ ps, but with sql syntax
 
 - Support user cpu, system cpu
 
-- [ ] docker build cache
-    - [ ] user change to non-root
-
-
 
 ## Examples
 
