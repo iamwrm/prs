@@ -35,8 +35,8 @@ ${DOCKER} run --rm \
 ${DOCKER} build -t prs \
 	-f docker/Dockerfile.runtime .
 
-find . -type d -print0 | xargs -0 chmod 0755 &
-find . -type f -print0 | xargs -0 chmod 0644 &
+sudo find . -type d -print0 | xargs -0 chmod 0755 &
+sudo find . -type f -print0 | xargs -0 chmod 0644 &
 
 wait
 # export 2 docker images 
