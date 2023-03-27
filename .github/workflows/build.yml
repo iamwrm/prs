@@ -57,6 +57,14 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: ${{ runner.os }}-cargo-
 
+      - name: Cache docker image
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./*.tar
+          key: docker-images-${{ hashFiles('docker/Dockerfile.builder') }}
+          restore-keys: docker-images-
+
       - name: Docker build
         run: |
           make docker_build

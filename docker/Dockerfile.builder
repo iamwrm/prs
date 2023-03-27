@@ -17,5 +17,5 @@ WORKDIR /home/u1000
 
 RUN \
     curl https://sh.rustup.rs -sSf | sh -s -- -y \
-    && mkdir /home/u1000/.cargo/{git,registry}
+    && mkdir -p /home/u1000/.cargo/{git,registry,registry/index}
 
