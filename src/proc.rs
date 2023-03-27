@@ -44,18 +44,27 @@ impl ProcessRecord {
 
 #[cached]
 fn uid_to_user(uid: u32) -> String {
-    uid_to_user_inner(uid).unwrap_or_else(|_| "unknown".to_string())
-}
-
-fn uid_to_user_inner(uid: u32) -> Result<String> {
     let cmd_to_run = duct::cmd!("id", "-nu", uid.to_string());
-    let output = cmd_to_run.stderr_capture().read()?;
-    Ok(output)
+    cmd_to_run
+        .stderr_capture()
+        .read()
+        .unwrap_or_else(|_| "unknown".to_string())
 }
 
 pub fn insert_process(connection: &sqlite::Connection) -> Result<()> {
-    connection
-        .execute("CREATE TABLE processes (pid INT, name TEXT, uid INT, vmrss_kb INT, user TEXT, num_threads INT, cmdline TEXT)")?;
+    connection.execute(
+        "
+        CREATE TABLE processes 
+        (
+            pid INT, 
+            name TEXT, 
+            uid INT, 
+            vmrss_kb INT, 
+            user TEXT, 
+            num_threads INT, 
+            cmdline TEXT
+        )",
+    )?;
 
     // get all processes using procfs
     // this didn't include other threads, only the main threads
@@ -65,22 +74,43 @@ pub fn insert_process(connection: &sqlite::Connection) -> Result<()> {
 
     for p in processes {
         match ProcessRecord::try_new(p) {
-            Ok(record) => {
+            Ok(r) => {
                 let query = format!(
-                    "INSERT INTO processes (pid, name, uid, vmrss_kb, user, num_threads, cmdline) VALUES ({}, '{}', {}, {}, '{}', {}, '{}')",
-                    record.pid,
-                    record.name,
-                    record.uid,
-                    record.vmrss_kb.unwrap_or(0),
-                    record.user,
-                    record.num_threads,
-                    record.cmdline.unwrap_or("".to_string())
+                    "
+                    INSERT INTO processes 
+                    (
+                        pid, 
+                        name, 
+                        uid, 
+                        vmrss_kb, 
+                        user, 
+                        num_threads, 
+                        cmdline
+                    ) 
+                    VALUES 
+                    (
+                        {}, 
+                        '{}', 
+                        {}, 
+                        {}, 
+                        '{}', 
+                        {}, 
+                        '{}'
+                    )
+                    ",
+                    r.pid,
+                    r.name,
+                    r.uid,
+                    r.vmrss_kb.unwrap_or(0),
+                    r.user,
+                    r.num_threads,
+                    r.cmdline.unwrap_or("".to_string())
                 );
                 let result = connection.execute(query.clone());
                 match result {
                     Ok(_) => (),
                     Err(e) => {
-                        anyhow::bail!("SQL insert Error: {} \n Query: {}", e, query);
+                        tracing::warn!("SQL {} insert Error: {}", query, e);
                     }
                 }
             }
