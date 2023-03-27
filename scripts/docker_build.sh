@@ -21,6 +21,9 @@ fi
 ${DOCKER} build -t rust_centos7_builder \
 	-f docker/Dockerfile.builder . 
 
+${DOCKER} build -t rust_ubi9_builder \
+	-f docker/Dockerfile.ubi9 . 
+
 ${DOCKER} run --rm \
 	-v ${PWD}:/app \
 	-v ${HOME}/.cargo/registry/cache:/home/u1000/.cargo/registry/cache \
