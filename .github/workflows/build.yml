@@ -9,6 +9,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: check system
+        run: |
+          lscpu && free -h 
+
+
       - name: Cache cargo registry
         uses: actions/cache@v3
         with:
