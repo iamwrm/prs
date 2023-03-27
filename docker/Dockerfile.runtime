@@ -1,0 +1,3 @@
+FROM centos:7
+
+COPY target/release/prs /usr/local/bin/prs
