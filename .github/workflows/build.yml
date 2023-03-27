@@ -64,9 +64,13 @@ jobs:
           key: docker-images-${{ hashFiles('docker/Dockerfile.builder') }}
           restore-keys: docker-images-
 
+      - name: Check permision
+        run: |
+          id
+          ls -lah .
+
       - name: Docker build
         run: |
-          id 
           sudo chown -R $USER:$USER $HOME/.cargo/
           make docker_build
           make docker_extract
