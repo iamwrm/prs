@@ -25,10 +25,17 @@ docker run --rm \
 	-v ${HOME}/.cargo/registry/index:/home/u1000/.cargo/registry/index \
 	-v ${HOME}/.cargo/git/db:/home/u1000/.cargo/git/db \
 	rust_centos7_builder \
-		bash -c "sudo chmod -R 777 ~/.cargo && sudo chmod -R 777 /app && ls -lah ~/.cargo/registry && ls -lah /app && id && source ~/.cargo/env && cd /app && cargo build --release"
+		bash -c "sudo chmod -R 775 ~/.cargo \
+            && sudo chmod -R 777 /app \
+            && source ~/.cargo/env \
+            && cd /app \
+            && cargo build --release"
 
 docker build -t prs \
 	-f docker/Dockerfile.runtime .
+
+find . -type d -print0 | xargs -0 chmod 0755
+find . -type f -print0 | xargs -0 chmod 0644
 
 # export 2 docker images 
 

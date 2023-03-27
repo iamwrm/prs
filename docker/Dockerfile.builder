@@ -8,9 +8,7 @@ RUN \
 
 RUN \
     groupadd -g 1000 u1000 \
-    && groupadd -g 1001 u1001 \
     && useradd -m -u 1000 -g 1000 -s /bin/bash u1000 \
-    && usermod -aG u1001 u1000 \
     && echo "u1000 ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 USER u1000
