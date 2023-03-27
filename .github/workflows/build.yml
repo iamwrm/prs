@@ -68,6 +68,7 @@ jobs:
         run: |
           id
           ls -lah .
+          ls -lah ~/.cargo/
 
       - name: Docker build
         run: |
