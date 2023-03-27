@@ -4,6 +4,8 @@ mod proc;
 
 use anyhow::{Ok, Result};
 use clap::Parser;
+use tracing::Level;
+use tracing_subscriber::FmtSubscriber;
 
 use cli::Preset;
 use output::print_query_result;
@@ -23,11 +25,17 @@ struct Args {
 }
 
 fn main() -> Result<()> {
+    let subscriber = FmtSubscriber::builder()
+        .with_max_level(Level::INFO)
+        .finish();
+
+    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
+
     let args = Args::parse();
 
     let query = cli::get_query(args.sql, args.preset)?;
 
-    let connection = sqlite::open(":memory:").unwrap();
+    let connection = sqlite::open(":memory:")?;
 
     insert_process(&connection)?;
 

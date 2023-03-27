@@ -19,7 +19,7 @@ pub fn get_query(sql_query: Option<String>, preset: Option<Preset>) -> Result<St
 
     if preset.is_none() && sql_query.is_none() {
         let query = "SELECT * FROM processes ORDER BY vmrss_kb DESC LIMIT 10".to_string();
-        println!("Using default query: {}", query);
+        tracing::info!("Using default query: {}", query);
         return Ok(query);
     }
 
@@ -38,7 +38,7 @@ pub fn get_query(sql_query: Option<String>, preset: Option<Preset>) -> Result<St
                 "SELECT * FROM processes WHERE user=\"root\" ORDER BY vmrss_kb DESC LIMIT 10"
             }
         };
-        println!("Using preset query: {}", query);
+        tracing::info!("Using preset query: {}", query);
         Ok(query.to_string())
     } else {
         anyhow::bail!("No query found");

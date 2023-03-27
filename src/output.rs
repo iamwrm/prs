@@ -41,20 +41,32 @@ fn print_cursor(cursor: &mut sqlite::Cursor) -> Result<()> {
 
     let n = column_names.len();
 
-    println!("{}", column_names.join("\t"));
+    let header = column_names.join("\t");
 
-    for i in cursor {
-        let i = i.unwrap();
-        for j in 0..n {
-            let name: Value = i[j].clone().into();
-            print!("{}", name);
-            if j == n - 1 {
-                println!();
-            } else {
-                print!("\t");
+    let lines = cursor
+        .into_iter()
+        .filter(|f| {
+            if f.is_err() {
+                tracing::warn!("Error while iterating over cursor");
+                return false;
             }
-        }
-    }
+            true
+        })
+        .map(|i| {
+            let i = i.unwrap();
+            (0..n)
+                .map(|j| {
+                    let v: Value = i[j].clone().into();
+                    format!("{}", v)
+                })
+                .collect::<Vec<String>>()
+                .join("\t")
+        })
+        .collect::<Vec<String>>()
+        .join("\n");
+    
+    println!("{}", header);
+    println!("{}", lines);
 
     Ok(())
 }
