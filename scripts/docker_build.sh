@@ -6,17 +6,6 @@ export DOCKER_BUILDKIT=1
 
 export DOCKER=podman
 
-# load 2 docker images if they exist
-
-if [ -f prs.tar ]; then
-    echo "Loading prs.tar"
-    ${DOCKER} load -i prs.tar
-fi
-
-if [ -f rust_centos7_builder.tar ]; then
-    echo "Loading rust_centos7_builder.tar"
-    ${DOCKER} load -i rust_centos7_builder.tar
-fi
 
 ${DOCKER} build -t rust_centos7_builder \
 	-f docker/Dockerfile.builder . 
@@ -33,6 +22,7 @@ ${DOCKER} run --rm \
             && sudo chmod -R 777 /app \
             && source ~/.cargo/env \
             && cd /app \
+            && cargo clean \
             && cargo build --release"
 
 ${DOCKER} build -t prs \
@@ -42,13 +32,14 @@ sudo bash -c "find . -type d -print0 | xargs -0 chmod 0755" &
 sudo bash -c "find . -type f -print0 | xargs -0 chmod 0644" &
 
 wait
-# export 2 docker images 
 
-rm -f prs.tar rust_centos7_builder.tar
+# extract the binary from the docker image
+${DOCKER} run --rm -v ${PWD}:/host prs bash -c "cp /usr/local/bin/prs /host && chown 1000:1000 /host/prs"
 
-${DOCKER} save -o prs.tar prs &
-${DOCKER} save -o rust_centos7_builder.tar rust_centos7_builder &
+ls -lah ./prs
+objdump -T ./prs | grep GLIBC | sed 's/.*GLIBC_\([.0-9]*\).*/\1/g' | sort -Vu
 
-wait
+${DOCKER} run --rm -it prs prs -p top10-mem
 
-ls -alh *.tar
+sudo chmod +x ./prs
+./prs -p top10-mem

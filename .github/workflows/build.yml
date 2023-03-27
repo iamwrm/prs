@@ -55,24 +55,9 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: ${{ runner.os }}-cargo-
 
-      - name: Cache docker image
-        uses: actions/cache@v3
-        with:
-          path: |
-            ./*.tar
-          key: docker-images-${{ hashFiles('docker/Dockerfile.builder') }}
-          restore-keys: docker-images-
-
-      - name: Check permision
-        run: |
-          id
-          ls -lah .
-          ls -lah ~/.cargo/
-
       - name: Docker build
         run: |
           make docker_build
-          make docker_extract
 
       # - uses: "marvinpinto/action-automatic-releases@latest"
       #   with:
