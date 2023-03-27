@@ -1,3 +1,3 @@
-FROM centos:7
+FROM registry.access.redhat.com/ubi7/ubi-minimal:7.9-979.1679306063
 
 COPY target/release/prs /usr/local/bin/prs

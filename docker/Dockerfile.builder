@@ -1,10 +1,7 @@
-FROM centos:7 as builder
+FROM registry.access.redhat.com/ubi7/ubi-minimal:7.9-979.1679306063 as builder
 
 RUN \
-    yum update -y \
-    && yum install -y epel-release \
-    && yum update -y \
-    && yum install -y curl git make gcc sudo
+    microdnf install -y curl git make gcc sudo && rm -rf /var/cache/yum
 
 RUN \
     groupadd -g 1000 u1000 \
