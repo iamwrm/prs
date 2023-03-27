@@ -25,7 +25,7 @@ docker run --rm \
 	-v ${HOME}/.cargo/registry/index:/home/u1000/.cargo/registry/index \
 	-v ${HOME}/.cargo/git/db:/home/u1000/.cargo/git/db \
 	rust_centos7_builder \
-		bash -c "source ~/.cargo/env && cd /app && id && cargo build --release"
+		bash -c "ls -lah ~/.cargo/registry && source ~/.cargo/env && cd /app && cargo build --release"
 
 docker build -t prs \
 	-f docker/Dockerfile.runtime .
