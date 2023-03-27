@@ -54,9 +54,15 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            server/target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: ${{ runner.os }}-cargo-
+
+      - name: check gh cache
+        run: |
+          ls -lah ~/.cargo/bin/
+          ls -lah ~/.cargo/registry/index/
+          ls -lah ~/.cargo/registry/cache/
+          ls -lah ~/.cargo/git/db/
 
       - name: Docker build
         run: |
