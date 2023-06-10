@@ -15,8 +15,6 @@ ${DOCKER} build -t rust_ubi9_builder \
 
 ${DOCKER} run --rm \
 	-v ${PWD}:/app \
-	-v ${HOME}/.cargo/registry/cache:/home/u1000/.cargo/registry/cache \
-	-v ${HOME}/.cargo/registry/index:/home/u1000/.cargo/registry/index \
 	rust_centos7_builder \
 		bash -c "sudo chmod -R 777 ~/.cargo \
             && sudo chmod -R 777 /app \
