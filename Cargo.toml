@@ -9,15 +9,15 @@ edition = "2021"
 
 # easier dev
 anyhow = "1.0.71"
-clap = { version = "4.3.3", features = ["derive"] }
+clap = { version = "4.3.5", features = ["derive"] }
 
 # core
 procfs = { version = "0.15.1", features = ["serde1"] }
-sqlite = "0.30.4"
+sqlite = "0.31.0"
 
 # faster syscalls
 duct = "0.13.6"
-cached = "0.42.0"
+cached = "0.44.0"
 
 # observability
 tracing = "0.1"
