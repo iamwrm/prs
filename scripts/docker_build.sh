@@ -17,11 +17,11 @@ ${DOCKER} run --rm \
 	-v ${PWD}:/app \
 	rust_centos7_builder \
 		bash -c "sudo chmod -R 777 ~/.cargo \
-            && sudo chmod -R 777 /app \
-            && source ~/.cargo/env \
-            && cd /app \
-            && cargo clean \
-            && cargo build --release"
+            		&& sudo chmod -R 777 /app \
+            		&& source ~/.cargo/env \
+            		&& cd /app \
+            		&& cargo clean \
+            		&& cargo build --release"
 
 ${DOCKER} build -t prs \
 	-f docker/Dockerfile.runtime .
@@ -35,6 +35,8 @@ wait
 ${DOCKER} run --rm -v ${PWD}:/host prs bash -c "cp /usr/local/bin/prs /host && chown 1000:1000 /host/prs"
 
 ls -lah ./prs
+
+echo "Checking GLIBC requirements"
 objdump -T ./prs | grep GLIBC | sed 's/.*GLIBC_\([.0-9]*\).*/\1/g' | sort -Vu
 
 ${DOCKER} run --rm -it prs prs -p top10-mem
