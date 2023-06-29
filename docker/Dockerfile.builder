@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi7/ubi-minimal:7.9-979.1679306063 as builder
+FROM ghcr.io/oracle/oraclelinux:7.9 as builder
 
 RUN \
     microdnf install -y curl git make gcc sudo && rm -rf /var/cache/yum
