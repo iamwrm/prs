@@ -9,7 +9,7 @@ edition = "2021"
 
 # easier dev
 anyhow = "1.0.71"
-clap = { version = "4.3.5", features = ["derive"] }
+clap = { version = "4.3.11", features = ["derive"] }
 
 # core
 procfs = { version = "0.15.1", features = ["serde1"] }
