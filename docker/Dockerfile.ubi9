@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/ubi:9.1.0-1782 as builder
+FROM registry.access.redhat.com/ubi9/ubi:9.2 as builder
 
 RUN \
     dnf install --allowerasing -y curl git make gcc sudo && dnf clean all
