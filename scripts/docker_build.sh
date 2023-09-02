@@ -7,21 +7,16 @@ export DOCKER_BUILDKIT=1
 export DOCKER=podman
 
 
-${DOCKER} build -t rust_centos7_builder \
+${DOCKER} build \
+	-t rust_builder \
 	-f docker/Dockerfile.builder . 
-
-${DOCKER} build -t rust_ubi9_builder \
-	-f docker/Dockerfile.ubi9 . 
 
 ${DOCKER} run --rm \
 	-v ${PWD}:/app \
-	rust_centos7_builder \
-		bash -c "sudo chmod -R 777 ~/.cargo \
-            		&& sudo chmod -R 777 /app \
-            		&& source ~/.cargo/env \
-            		&& cd /app \
-            		&& cargo clean \
-            		&& cargo build --release"
+	rust_builder \
+	cargo zigbuild --target x86_64-unknown-linux-gnu.2.17
+
+ls -lah ./target/x86_64-unknown-linux-gnu.2.17/release/prs
 
 ${DOCKER} build -t prs \
 	-f docker/Dockerfile.runtime .
