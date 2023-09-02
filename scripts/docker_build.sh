@@ -39,8 +39,8 @@ ${DOCKER} run --rm -it prs prs -p top10-mem
 sudo chmod +x ./prs
 ./prs -p top10-mem
 
-wget -c https://github.com/upx/upx/releases/download/v4.0.2/upx-4.0.2-amd64_linux.tar.xz
-tar -xvf upx-4.0.2-amd64_linux.tar.xz
+wget -q https://github.com/upx/upx/releases/download/v4.0.2/upx-4.0.2-amd64_linux.tar.xz
+tar -xf upx-4.0.2-amd64_linux.tar.xz
 ls -lah ./prs
 ./upx-4.0.2-amd64_linux/upx --ultra-brute ./prs
 ls -lah ./prs
