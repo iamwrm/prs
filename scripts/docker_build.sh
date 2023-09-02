@@ -14,9 +14,11 @@ ${DOCKER} build \
 ${DOCKER} run --rm \
 	-v ${PWD}:/app \
 	rust_builder \
-	cargo zigbuild --target x86_64-unknown-linux-gnu.2.17
+	bash -c "source /root/.bashrc && \
+		cd /app && \
+		cargo zigbuild --release --target x86_64-unknown-linux-gnu.2.17"
 
-ls -lah ./target/x86_64-unknown-linux-gnu.2.17/release/prs
+ls -lah ./target/x86_64-unknown-linux-gnu/release/prs
 
 ${DOCKER} build -t prs \
 	-f docker/Dockerfile.runtime .
