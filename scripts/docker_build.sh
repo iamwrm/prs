@@ -3,7 +3,6 @@
 set -ueo pipefail
 
 export DOCKER_BUILDKIT=1
-
 export DOCKER=podman
 
 
@@ -29,7 +28,10 @@ sudo bash -c "find . -type f -print0 | xargs -0 chmod 0644" &
 wait
 
 # extract the binary from the docker image
-${DOCKER} run --rm -v ${PWD}:/host prs bash -c "cp /usr/local/bin/prs /host && chown 1000:1000 /host/prs"
+${DOCKER} run \
+	--rm \
+	-v ${PWD}:/host \
+	prs bash -c "cp /usr/local/bin/prs /host && chown 1000:1000 /host/prs"
 
 ls -lah ./prs
 
@@ -41,7 +43,7 @@ ${DOCKER} run --rm -it prs prs -p top10-mem
 sudo chmod +x ./prs
 ./prs -p top10-mem
 
-wget -q https://github.com/upx/upx/releases/download/v4.0.2/upx-4.0.2-amd64_linux.tar.xz
+curl -O https://github.com/upx/upx/releases/download/v4.0.2/upx-4.0.2-amd64_linux.tar.xz
 tar -xf upx-4.0.2-amd64_linux.tar.xz
 ls -lah ./prs
 ./upx-4.0.2-amd64_linux/upx --ultra-brute ./prs
