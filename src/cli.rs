@@ -35,7 +35,7 @@ pub fn get_query(sql_query: Option<String>, preset: Option<Preset>) -> Result<St
                 "SELECT user, SUM(vmrss_kb) FROM processes GROUP BY user ORDER BY SUM(vmrss_kb) DESC"
             }
             Preset::TopRootMem => {
-                "SELECT * FROM processes WHERE user=\"root\" ORDER BY vmrss_kb DESC LIMIT 10"
+                "SELECT * FROM processes WHERE user=\'root\' ORDER BY vmrss_kb DESC LIMIT 10"
             }
         };
         tracing::info!("Using preset query: {}", query);
