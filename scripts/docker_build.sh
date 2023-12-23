@@ -41,7 +41,7 @@ echo "Checking GLIBC requirements"
 objdump -T ./prs | grep GLIBC | sed 's/.*GLIBC_\([.0-9]*\).*/\1/g' | sort -Vu
 
 
-${DOCKER} run --rm -it prs bash -c "whoami && chmod +x /usr/local/bin/prs && /usr/local/bin/prs -p top10-mem"
+${DOCKER} run --rm prs bash -c "whoami && chmod +x /usr/local/bin/prs && /usr/local/bin/prs -p top10-mem"
 
 ./prs -p top10-mem
 
