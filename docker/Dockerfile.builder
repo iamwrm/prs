@@ -1,4 +1,4 @@
-FROM docker.io/rust:1.72
+FROM docker.io/rust:1
 
 RUN \
     cargo install cargo-zigbuild

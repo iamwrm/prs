@@ -3,7 +3,7 @@
 set -ueo pipefail
 
 export DOCKER_BUILDKIT=1
-export DOCKER=podman
+export DOCKER=docker
 
 
 ${DOCKER} build \
@@ -11,6 +11,7 @@ ${DOCKER} build \
 	-f docker/Dockerfile.builder . 
 
 ${DOCKER} run --rm \
+	--init \
 	-v ${PWD}:/app \
 	rust_builder \
 	bash -c "source /root/.bashrc && \
@@ -34,17 +35,20 @@ ${DOCKER} run \
 	prs bash -c "cp /usr/local/bin/prs /host && chown 1000:1000 /host/prs"
 
 ls -lah ./prs
+sudo chmod +x ./prs
 
 echo "Checking GLIBC requirements"
 objdump -T ./prs | grep GLIBC | sed 's/.*GLIBC_\([.0-9]*\).*/\1/g' | sort -Vu
 
-${DOCKER} run --rm -it prs prs -p top10-mem
 
-sudo chmod +x ./prs
+${DOCKER} run --rm -it prs bash -c "whoami && chmod +x /usr/local/bin/prs && /usr/local/bin/prs -p top10-mem"
+
 ./prs -p top10-mem
 
-curl -fsSLO https://github.com/upx/upx/releases/download/v4.0.2/upx-4.0.2-amd64_linux.tar.xz
-tar -xf upx-4.0.2-amd64_linux.tar.xz
+bash scripts/release/setup_upx.sh
+
+export PATH=${PWD}/local_data/bin:$PATH
+
 ls -lah ./prs
-./upx-4.0.2-amd64_linux/upx --ultra-brute ./prs
+upx --ultra-brute ./prs
 ls -lah ./prs
