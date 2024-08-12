@@ -8,16 +8,16 @@ edition = "2021"
 [dependencies]
 
 # easier dev
-anyhow = "1.0.76"
-clap = { version = "4.4.11", features = ["derive"] }
+anyhow = "1.0.86"
+clap = { version = "4.5.15", features = ["derive"] }
 
 # core
-procfs = { version = "0.15.1", features = ["serde1"] }
-sqlite = "0.31.1"
+procfs = { version = "0.16.0", features = ["serde1"] }
+sqlite = "0.36.1"
 
 # faster syscalls
 duct = "0.13.7"
-cached = "0.46.1"
+cached = "0.53.1"
 
 # observability
 tracing = "0.1"
