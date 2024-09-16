@@ -48,7 +48,7 @@ fn uid_to_user(uid: u32) -> String {
     cmd_to_run
         .stderr_capture()
         .read()
-        .unwrap_or_else(|_| "unknown".to_string())
+        .unwrap_or_else(|_| uid.to_string())
 }
 
 pub fn insert_process(connection: &sqlite::Connection) -> Result<()> {
