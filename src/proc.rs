@@ -7,6 +7,7 @@ pub struct ProcessRecord {
     name: String,
     uid: u32,
     vmrss_kb: Option<u64>,
+    unique_kb: Option<u64>,  // Memory unique to this process (RSS - Shared)
     user: String,
     num_threads: i64,
     cmdline: Option<String>,
@@ -17,6 +18,7 @@ impl ProcessRecord {
         let pid = p.pid();
         let status = p.status().ok();
         let stat = p.stat().ok();
+        let statm = p.statm().ok();
 
         let cmdline = p
             .cmdline()
@@ -30,11 +32,20 @@ impl ProcessRecord {
         let stat = stat.unwrap();
         let status = status.unwrap();
 
+        // Calculate unique memory by subtracting shared pages
+        let unique_kb = statm.map(|s| {
+            // Convert pages to KB (multiply by 4 since page size is typically 4KB)
+            let resident_pages = s.resident;
+            let shared_pages = s.shared;
+            (resident_pages - shared_pages) * 4
+        });
+
         Ok(Self {
             pid,
             name: status.name,
             uid: status.egid,
             vmrss_kb: status.vmrss,
+            unique_kb,
             user: uid_to_user(status.egid),
             num_threads: stat.num_threads,
             cmdline,
@@ -60,6 +71,7 @@ pub fn insert_process(connection: &sqlite::Connection) -> Result<()> {
             name TEXT, 
             uid INT, 
             vmrss_kb INT, 
+            unique_kb INT, 
             user TEXT, 
             num_threads INT, 
             cmdline TEXT
@@ -83,6 +95,7 @@ pub fn insert_process(connection: &sqlite::Connection) -> Result<()> {
                         name, 
                         uid, 
                         vmrss_kb, 
+                        unique_kb, 
                         user, 
                         num_threads, 
                         cmdline
@@ -91,6 +104,7 @@ pub fn insert_process(connection: &sqlite::Connection) -> Result<()> {
                     (
                         {}, 
                         '{}', 
+                        {}, 
                         {}, 
                         {}, 
                         '{}', 
@@ -102,6 +116,7 @@ pub fn insert_process(connection: &sqlite::Connection) -> Result<()> {
                     r.name,
                     r.uid,
                     r.vmrss_kb.unwrap_or(0),
+                    r.unique_kb.unwrap_or(0),
                     r.user,
                     r.num_threads,
                     r.cmdline.unwrap_or("".to_string())

@@ -1,0 +1,11 @@
+---
+description: Build this rust project
+globs: *.rs
+---
+
+# This this prs, which provide sql interface to top-related stats. 
+
+We use this to get finer details of user processing, especially memory usage on linux system
+
+To run, just call `cargo r`
+
