@@ -17,7 +17,10 @@ if [ ! -f "${DOWNLOAD_DIR}/${UPX_ARCHIVE}" ]; then
 fi
 
 echo "📦 Extracting UPX..."
-tar -xf "${DOWNLOAD_DIR}/${UPX_ARCHIVE}" -C "${DOWNLOAD_DIR}" 2>/dev/null
+if ! tar -xf "${DOWNLOAD_DIR}/${UPX_ARCHIVE}" -C "${DOWNLOAD_DIR}"; then
+    echo "❌ Error: Failed to extract UPX archive. Please check the archive file and try again." >&2
+    exit 1
+fi
 
 cp "${DOWNLOAD_DIR}/upx-${UPX_VERSION}-${ARCH}_linux/upx" "${BIN_DIR}/"
 chmod +x "${BIN_DIR}/upx"
