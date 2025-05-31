@@ -1,72 +1,48 @@
 use anyhow::Result;
 
-struct Value {
-    value: sqlite::Value,
-}
-
-impl std::fmt::Display for Value {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match &self.value {
-            sqlite::Value::Null => write!(f, "NULL"),
-            sqlite::Value::Integer(v) => write!(f, "{}", v),
-            sqlite::Value::Float(v) => write!(f, "{}", v),
-            sqlite::Value::String(v) => write!(f, "{}", v),
-            sqlite::Value::Binary(v) => write!(f, "{:?}", v),
-        }
-    }
-}
-
-impl From<sqlite::Value> for Value {
-    fn from(value: sqlite::Value) -> Self {
-        Value { value }
-    }
-}
-
 pub fn print_query_result(connection: &sqlite::Connection, query: &str) -> Result<()> {
-    let output_header = format!("Query: {}", query);
-    println!("{}", output_header);
+    println!("Query: {}", query);
     println!("----------------");
 
     let mut stmt = connection.prepare(query)?;
-
     let mut cursor = stmt.iter();
 
     print_cursor(&mut cursor)?;
-
     Ok(())
 }
 
 fn print_cursor(cursor: &mut sqlite::Cursor) -> Result<()> {
-    let column_names = cursor.column_names();
+    let column_names: Vec<String> = cursor
+        .column_names()
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
+    println!("{}", column_names.join("\t"));
 
-    let n = column_names.len();
-
-    let header = column_names.join("\t");
-
-    let lines = cursor
-        .into_iter()
-        .filter(|f| {
-            if f.is_err() {
-                tracing::warn!("Error while iterating over cursor");
-                return false;
+    for row_result in cursor.by_ref() {
+        match row_result {
+            Ok(row) => {
+                let values: Vec<String> = (0..column_names.len())
+                    .map(|i| format_value(&row[i]))
+                    .collect();
+                println!("{}", values.join("\t"));
             }
-            true
-        })
-        .map(|i| {
-            let i = i.unwrap();
-            (0..n)
-                .map(|j| {
-                    let v: Value = i[j].clone().into();
-                    format!("{}", v)
-                })
-                .collect::<Vec<String>>()
-                .join("\t")
-        })
-        .collect::<Vec<String>>()
-        .join("\n");
-
-    println!("{}", header);
-    println!("{}", lines);
+            Err(e) => {
+                tracing::warn!("Error reading row: {}", e);
+                break;
+            }
+        }
+    }
 
     Ok(())
+}
+
+fn format_value(value: &sqlite::Value) -> String {
+    match value {
+        sqlite::Value::Null => "NULL".to_string(),
+        sqlite::Value::Integer(v) => v.to_string(),
+        sqlite::Value::Float(v) => v.to_string(),
+        sqlite::Value::String(v) => v.clone(),
+        sqlite::Value::Binary(v) => format!("{:?}", v),
+    }
 }

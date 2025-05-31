@@ -24,7 +24,7 @@ sudo find . -type f -exec chmod 0644 {} \;
 
 # Extract binary from Docker image
 ${DOCKER} run --rm -v ${PWD}:/host prs \
-	bash -c "cp /usr/local/bin/prs /host && chown 1000:1000 /host/prs"
+	bash -c "cp /usr/local/bin/prs /host && chown ${HOST_UID:-1000}:${HOST_GID:-1000} /host/prs"
 
 sudo chmod +x ./prs
 
