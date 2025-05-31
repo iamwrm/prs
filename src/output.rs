@@ -64,7 +64,7 @@ fn print_cursor(cursor: &mut sqlite::Cursor) -> Result<()> {
         })
         .collect::<Vec<String>>()
         .join("\n");
-    
+
     println!("{}", header);
     println!("{}", lines);
 

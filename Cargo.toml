@@ -8,20 +8,20 @@ edition = "2021"
 [dependencies]
 
 # easier dev
-anyhow = "1.0.89"
-clap = { version = "4.5.17", features = ["derive"] }
+anyhow = "1"
+clap = { version = "4.5", features = ["derive"] }
 
 # core
-procfs = { version = "0.16.0", features = ["serde1"] }
-sqlite = "0.36.1"
+procfs = { version = "0.16", features = ["serde1"] }
+sqlite = "0.36"
 
 # faster syscalls
-duct = "0.13.7"
-cached = "0.53.1"
+duct = "0.13"
+cached = "0.53"
 
 # observability
 tracing = "0.1"
-tracing-subscriber = "0.3"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 [profile.release]
 opt-level = "z"
