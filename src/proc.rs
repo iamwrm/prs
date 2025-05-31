@@ -7,7 +7,7 @@ pub struct ProcessRecord {
     name: String,
     uid: u32,
     vmrss_kb: Option<u64>,
-    unique_kb: Option<u64>,  // Memory unique to this process (RSS - Shared)
+    unique_kb: Option<u64>, // Memory unique to this process (RSS - Shared)
     user: String,
     num_threads: i64,
     cmdline: Option<String>,

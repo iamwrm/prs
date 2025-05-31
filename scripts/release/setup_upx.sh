@@ -1,26 +1,27 @@
 #!/bin/bash
 
-set -ueo pipefail
+set -euo pipefail
 
-ARCH=amd64
-UPX_VERSION="4.2.1"
-DOWNLOAD_URL="https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-${ARCH}_linux.tar.xz"
-UPX_ARCHIVE_NAME="upx-${UPX_VERSION}-${ARCH}_linux.tar.xz"
-DOWNLOAD_DIR=$(pwd)/local_data
+readonly ARCH="amd64"
+readonly UPX_VERSION="4.2.1"
+readonly DOWNLOAD_URL="https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-${ARCH}_linux.tar.xz"
+readonly UPX_ARCHIVE="upx-${UPX_VERSION}-${ARCH}_linux.tar.xz"
+readonly DOWNLOAD_DIR="$(pwd)/local_data"
+readonly BIN_DIR="${DOWNLOAD_DIR}/bin"
 
+mkdir -p "${BIN_DIR}"
 
-mkdir -p ${DOWNLOAD_DIR}/bin
-
-if [ ! -f ${DOWNLOAD_DIR}/${UPX_ARCHIVE_NAME} ]; then
-    curl -L ${DOWNLOAD_URL} -o ${DOWNLOAD_DIR}/${UPX_ARCHIVE_NAME} 
+if [ ! -f "${DOWNLOAD_DIR}/${UPX_ARCHIVE}" ]; then
+    echo "📥 Downloading UPX ${UPX_VERSION}..."
+    curl -sL "${DOWNLOAD_URL}" -o "${DOWNLOAD_DIR}/${UPX_ARCHIVE}"
 fi
 
-tar -xvf ${DOWNLOAD_DIR}/${UPX_ARCHIVE_NAME} -C ${DOWNLOAD_DIR}
+echo "📦 Extracting UPX..."
+tar -xf "${DOWNLOAD_DIR}/${UPX_ARCHIVE}" -C "${DOWNLOAD_DIR}" 2>/dev/null
 
-cp ${DOWNLOAD_DIR}/upx-${UPX_VERSION}-${ARCH}_linux/upx ${DOWNLOAD_DIR}/bin
-chmod +x ${DOWNLOAD_DIR}/bin/upx
+cp "${DOWNLOAD_DIR}/upx-${UPX_VERSION}-${ARCH}_linux/upx" "${BIN_DIR}/"
+chmod +x "${BIN_DIR}/upx"
 
+export PATH="${BIN_DIR}:$PATH"
 
-export PATH=${DOWNLOAD_DIR}/bin:$PATH
-
-upx --version
+echo "✅ UPX $(upx --version | head -n1) ready"
